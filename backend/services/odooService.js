@@ -15,31 +15,67 @@ class OdooService {
     };
   }
 
-  async callOdoo(model, method, args = [], kwargs = {}) {
+  async testConnection() {
+    // Simple test to check if we can connect to Odoo
     try {
-      const response = await axios.post(`${this.url}/xmlrpc/2/object`, {
+      if (!this.url || !this.database || !this.username || !this.apiKey) {
+        throw new Error('Missing Odoo configuration. Please check ODOO_URL, ODOO_DATABASE, ODOO_USERNAME, and ODOO_API_KEY environment variables.');
+      }
+
+      // Try to get a simple list of categories as a connection test
+      const response = await axios.post(`${this.url}/web/dataset/call_kw`, {
         jsonrpc: '2.0',
         method: 'call',
         params: {
-          service: 'object',
-          method: 'execute_kw',
-          args: [
-            this.database,
-            this.username,
-            this.apiKey,
-            model,
-            method,
-            args,
-            kwargs
-          ]
+          model: 'product.category',
+          method: 'search_read',
+          args: [[], ['id', 'name']],
+          kwargs: { limit: 1 }
         },
         id: Math.floor(Math.random() * 1000)
       }, {
-        headers: this.getHeaders()
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': `session_id=${this.apiKey}`
+        }
       });
 
       if (response.data.error) {
-        throw new Error(response.data.error.message);
+        throw new Error(response.data.error.data.message || response.data.error.message);
+      }
+
+      return { success: true, data: response.data.result };
+    } catch (error) {
+      console.error('Odoo connection test failed:', error.message);
+      throw error;
+    }
+  }
+
+  async callOdoo(model, method, args = [], kwargs = {}) {
+    try {
+      if (!this.url || !this.database || !this.username || !this.apiKey) {
+        throw new Error('Missing Odoo configuration. Please check environment variables.');
+      }
+
+      const response = await axios.post(`${this.url}/web/dataset/call_kw`, {
+        jsonrpc: '2.0',
+        method: 'call',
+        params: {
+          model: model,
+          method: method,
+          args: args,
+          kwargs: kwargs
+        },
+        id: Math.floor(Math.random() * 1000)
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': `session_id=${this.apiKey}`
+        }
+      });
+
+      if (response.data.error) {
+        throw new Error(response.data.error.data?.message || response.data.error.message);
       }
 
       return response.data.result;

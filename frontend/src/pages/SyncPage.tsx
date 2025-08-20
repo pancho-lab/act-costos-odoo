@@ -17,7 +17,6 @@ import {
   CloudSync as SyncIcon,
   CloudDownload as ImportIcon,
   CloudUpload as ExportIcon,
-  CheckCircle as SuccessIcon,
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { odooApi, changesApi } from '../services/api';
@@ -111,7 +110,7 @@ const SyncPage: React.FC = () => {
                 <CircularProgress size={24} />
               ) : (
                 <>
-                  {pendingChanges?.data && pendingChanges.data.length > 0 ? (
+                  {pendingChanges?.data && Array.isArray(pendingChanges.data) && pendingChanges.data.length > 0 ? (
                     <Alert severity="warning" sx={{ mb: 2 }}>
                       Tienes {pendingChanges.data.length} cambios pendientes de sincronizar
                     </Alert>
@@ -127,7 +126,7 @@ const SyncPage: React.FC = () => {
                     color="warning"
                     startIcon={syncToOdooMutation.isLoading ? <CircularProgress size={20} /> : <ExportIcon />}
                     onClick={() => syncToOdooMutation.mutate()}
-                    disabled={syncToOdooMutation.isLoading || !pendingChanges?.data?.length}
+                    disabled={syncToOdooMutation.isLoading || !pendingChanges?.data || !Array.isArray(pendingChanges.data) || pendingChanges.data.length === 0}
                   >
                     {syncToOdooMutation.isLoading ? 'Sincronizando...' : 'Sincronizar a Odoo'}
                   </Button>
@@ -186,7 +185,7 @@ const SyncPage: React.FC = () => {
           </Card>
         </Grid>
 
-        {pendingChanges?.data && pendingChanges.data.length > 0 && (
+        {pendingChanges?.data && Array.isArray(pendingChanges.data) && pendingChanges.data.length > 0 && (
           <Grid item xs={12}>
             <Card>
               <CardContent>
@@ -194,7 +193,7 @@ const SyncPage: React.FC = () => {
                   Cambios Pendientes de Sincronizar
                 </Typography>
                 <List dense>
-                  {pendingChanges.data.slice(0, 10).map((change: any, index: number) => (
+                  {Array.isArray(pendingChanges.data) && pendingChanges.data.slice(0, 10).map((change: any, index: number) => (
                     <div key={change.id}>
                       <ListItem>
                         <ListItemText
@@ -202,13 +201,13 @@ const SyncPage: React.FC = () => {
                           secondary={`${change.category_name} - $${change.old_cost?.toFixed(2) || 'N/A'} → $${change.new_cost.toFixed(2)}`}
                         />
                       </ListItem>
-                      {index < Math.min(9, pendingChanges.data.length - 1) && <Divider />}
+                      {index < Math.min(9, (Array.isArray(pendingChanges.data) ? pendingChanges.data.length : 0) - 1) && <Divider />}
                     </div>
                   ))}
-                  {pendingChanges.data.length > 10 && (
+                  {Array.isArray(pendingChanges.data) && pendingChanges.data.length > 10 && (
                     <ListItem>
                       <ListItemText
-                        primary={`... y ${pendingChanges.data.length - 10} cambios más`}
+                        primary={`... y ${Array.isArray(pendingChanges.data) ? pendingChanges.data.length - 10 : 0} cambios más`}
                       />
                     </ListItem>
                   )}

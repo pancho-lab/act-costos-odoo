@@ -86,11 +86,11 @@ router.post('/sync/categories', async (req, res) => {
 // Test Odoo connection
 router.get('/test-connection', async (req, res) => {
   try {
-    const categories = await odooService.getCategories();
+    const result = await odooService.testConnection();
     res.json({ 
       success: true, 
       message: 'Connection to Odoo successful',
-      categoriesCount: categories.length
+      data: result.data
     });
   } catch (error) {
     console.error('Connection test failed:', error);

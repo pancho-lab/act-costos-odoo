@@ -75,10 +75,12 @@ const ProductsPage: React.FC = () => {
     }
   );
 
-  const filteredProducts = products?.data?.filter((product: Product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.code.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredProducts = products && Array.isArray(products.data) 
+    ? products.data.filter((product: Product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.code.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   const handleEditCost = (product: Product) => {
     setEditProduct(product);
@@ -120,9 +122,9 @@ const ProductsPage: React.FC = () => {
                 <InputLabel>Categoría</InputLabel>
                 <Select
                   value={bulkCostCategory}
-                  onChange={(e) => setBulkCostCategory(e.target.value)}
+                  onChange={(e) => setBulkCostCategory(e.target.value as number | '')}
                 >
-                  {categories?.data?.map((category: Category) => (
+                  {categories && Array.isArray(categories.data) && categories.data.map((category: Category) => (
                     <MenuItem key={category.odoo_id} value={category.odoo_id}>
                       {category.name} ({category.product_count} productos)
                     </MenuItem>
@@ -170,10 +172,10 @@ const ProductsPage: React.FC = () => {
               <InputLabel>Filtrar por Categoría</InputLabel>
               <Select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => setSelectedCategory(e.target.value as number | '')}
               >
                 <MenuItem value="">Todas las categorías</MenuItem>
-                {categories?.data?.map((category: Category) => (
+                {Array.isArray(categories?.data) && categories.data.map((category: Category) => (
                   <MenuItem key={category.odoo_id} value={category.odoo_id}>
                     {category.name}
                   </MenuItem>

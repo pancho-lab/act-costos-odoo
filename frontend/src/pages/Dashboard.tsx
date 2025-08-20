@@ -25,19 +25,19 @@ const Dashboard: React.FC = () => {
   const statsCards = [
     {
       title: 'Total Productos',
-      value: products?.data?.length || 0,
+      value: products && Array.isArray(products.data) ? products.data.length : 0,
       icon: <ProductsIcon fontSize="large" />,
       color: '#1976d2',
     },
     {
       title: 'Categorías',
-      value: categories?.data?.length || 0,
+      value: categories && Array.isArray(categories.data) ? categories.data.length : 0,
       icon: <CategoryIcon fontSize="large" />,
       color: '#2e7d32',
     },
     {
       title: 'Cambios Pendientes',
-      value: pendingChanges?.data?.length || 0,
+      value: pendingChanges && Array.isArray(pendingChanges.data) ? pendingChanges.data.length : 0,
       icon: <ChangesIcon fontSize="large" />,
       color: '#ed6c02',
     },
@@ -128,7 +128,7 @@ const Dashboard: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Estado del Sistema
               </Typography>
-              {pendingChanges?.data && pendingChanges.data.length > 0 ? (
+              {pendingChanges?.data && Array.isArray(pendingChanges.data) && pendingChanges.data.length > 0 ? (
                 <Alert severity="warning">
                   Tienes {pendingChanges.data.length} cambios pendientes de sincronizar con Odoo
                 </Alert>

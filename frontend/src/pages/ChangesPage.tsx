@@ -114,10 +114,10 @@ const ChangesPage: React.FC = () => {
           <InputLabel>Categoría</InputLabel>
           <Select
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
+            onChange={(e) => setCategoryFilter(e.target.value as number | '')}
           >
             <MenuItem value="">Todas las categorías</MenuItem>
-            {categories?.data?.map((category: Category) => (
+            {Array.isArray(categories?.data) && categories.data.map((category: Category) => (
               <MenuItem key={category.odoo_id} value={category.odoo_id}>
                 {category.name}
               </MenuItem>
@@ -156,14 +156,14 @@ const ChangesPage: React.FC = () => {
                   Cargando...
                 </TableCell>
               </TableRow>
-            ) : !changes?.data || changes.data.length === 0 ? (
+            ) : !changes?.data || !Array.isArray(changes.data) || changes.data.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} align="center">
                   No se encontraron cambios
                 </TableCell>
               </TableRow>
             ) : (
-              changes.data.map((change: CostChange) => (
+              Array.isArray(changes.data) && changes.data.map((change: CostChange) => (
                 <TableRow key={change.id}>
                   <TableCell>{change.product_name}</TableCell>
                   <TableCell>
@@ -189,7 +189,7 @@ const ChangesPage: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <Chip
-                      icon={getChangeTypeIcon(change.change_type)}
+                      icon={getChangeTypeIcon(change.change_type) || undefined}
                       label={getChangeTypeLabel(change.change_type)}
                       size="small"
                       variant="outlined"
